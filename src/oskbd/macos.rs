@@ -1,8 +1,7 @@
 //! Contains the input/output code for keyboards on macOS.
 
-use rdev::{simulate, EventType, SimulateError};
+use rdev::{simulate, EventType};
 use std::io;
-use std::{thread, time};
 
 use crate::custom_action::*;
 use crate::keys::*;
@@ -16,16 +15,13 @@ impl KbdOut {
     }
 
     pub fn write(&mut self, event_type: EventType) -> Result<(), io::Error> {
-        let delay = time::Duration::from_millis(20);
-        match simulate(&event_type) {
-            Ok(()) => (),
-            Err(SimulateError) => {
-                io::Error::new(io::ErrorKind::BrokenPipe, "We could not send event");
-            }
-        }
-        // Let ths OS catchup (at least MacOS)
-        thread::sleep(delay);
-        Ok(())
+        simulate(&event_type)
+            .map_err(|_err| {
+                io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "We could not send keyboard event",
+                )
+            })
     }
 
     pub fn write_key(&mut self, key: OsCode, value: KeyValue) -> Result<(), io::Error> {
@@ -82,7 +78,7 @@ impl KbdOut {
 
 fn event_type_from_oscode(code: OsCode, value: KeyValue) -> EventType {
     match value {
-        KeyValue::Release | KeyValue::Repeat => EventType::KeyRelease(OsCode::as_key(code)),
-        KeyValue::Press => EventType::KeyPress(OsCode::as_key(code)),
+        KeyValue::Release => EventType::KeyRelease(OsCode::as_key(code)),
+        KeyValue::Press | KeyValue::Repeat => EventType::KeyPress(OsCode::as_key(code)),
     }
 }
