@@ -1,0 +1,62 @@
+;; Comments are prefixed by double-semicolon. A single semicolon is parsed as the
+;; keyboard key. Comments are ignored for the configuration file.
+;;
+;; This configuration language is Lisp-like. If you're unfamiliar with Lisp,
+;; don't be alarmed. The maintainer jtroo is also unfamiliar with Lisp. You
+;; don't need to know Lisp in-depth to be able to configure kanata.
+;;
+;; If you follow along with the examples, you should be fine. Kanata should
+;; also hopefully have helpful error messages in case something goes wrong.
+;; If you need help, you are welcome to ask.
+
+
+(defcfg
+  ;; If you are using Windows or macOS, you do not need the linux-dev line below, but
+  ;; you still need a defcfg entry. You can leave the linux-dev entry and it
+  ;; will be ignored or you can delete it if desired.
+  ;;
+  ;; Your keyboard device may differ from this. I believe /dev/input/by-id/
+  ;; is preferable; I recall reading that it's less likely to change names on you,
+  ;; but I didn't find any keyboard device in there in my VM.
+  linux-dev /dev/input/by-path/platform-i8042-serio-0-event-kbd
+)
+
+(defalias
+    nav  (layer-toggle extend))
+
+(defalias
+    spc_n (tap-hold-release 150 150 spc @nav)
+    ma    (tap-hold-release 150 150 a lmet)
+    ar    (tap-hold-release 150 150 r lalt)
+    cs    (tap-hold-release 150 150 s lctl)
+    st    (tap-hold-release 150 150 t lsft)
+
+    sn    (tap-hold-release 150 150 n rsft)
+    ce    (tap-hold-release 150 150 e rctl)
+    ai    (tap-hold-release 150 150 i ralt)
+    mo    (tap-hold-release 150 150 o rmet)
+)
+
+(defsrc
+  nubs
+  q    w    e    r    t    y    u    i    o    p
+  caps a    s    d    f    g    h    j    k    l    ;
+  lsft grv  z    x    c    v    b    n    m
+  ;; cmp  lctl lalt lmet          spc             rmet ralt
+)
+
+(deflayer colemak-dhm9
+  grv
+  q    w    f    p    b    j    l    u    y    ;
+  lctl @ma  @ar  @cs  @st  g    k    @sn  @ce  @ai  @mo
+  lsft z    x    c    d    v    _    m    h
+  ;; lctl cmp  lalt lmet           @spc_n         ralt rmet
+)
+
+(deflayer extend
+  _
+  _    _   _    _    _    _    _    _    _    _
+  lctl @ma  @ar  @cs  @st  g    k    lft  up   down rght
+  _    _    _    _    _    _    _    _    _
+  ;; lctl cmp  lalt lmet           _              _    rmet
+)   

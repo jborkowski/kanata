@@ -2,11 +2,10 @@
 
 use core::ffi::c_void;
 use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
-use rdev::{simulate, EventType};
-use serde::de::IntoDeserializer;
+use rdev::EventType;
 use std::io;
 
-use core_graphics::event::{CGEvent, CGEventTapLocation, CGEventTapProxy};
+use core_graphics::event::CGEvent;
 
 use crate::custom_action::*;
 use crate::keys::*;
@@ -20,18 +19,12 @@ impl KbdOut {
     }
 
     pub fn write(&mut self, event_type: EventType) -> Result<(), io::Error> {
-        log::info!("input ev: {:?}", event_type);
-        use std::{thread, time};
+        log::debug!("input ev: {:?}", event_type);
         let event_source = CGEventSource::new(CGEventSourceStateID::HIDSystemState)
-            .ok()
-            .unwrap();
-
-        thread::sleep(time::Duration::from_millis(20));
-
+            .map_err(|_| io::Error::new(io::ErrorKind::NotFound, "HID is not found"))?;
         unsafe {
             let event = convert_native_with_source(&event_type, event_source)
                 .expect("Failed creating event");
-            // event.post(CGEventTapLocation::HID );
 
             let state_ptr: *const c_void = std::mem::transmute(&self);
 
@@ -97,14 +90,6 @@ fn event_type_from_oscode(code: OsCode, value: KeyValue) -> EventType {
     match value {
         KeyValue::Release => EventType::KeyRelease(OsCode::as_key(code)),
         KeyValue::Press | KeyValue::Repeat => EventType::KeyPress(OsCode::as_key(code)),
-    }
-}
-
-fn clear(event_type: EventType) -> EventType {
-    match event_type {
-        EventType::KeyRelease(code) => EventType::KeyRelease(code),
-        EventType::KeyPress(code) => EventType::KeyRelease(code),
-        _ => todo!(),
     }
 }
 
