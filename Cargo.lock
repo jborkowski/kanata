@@ -178,7 +178,7 @@ checksum = "667fdc068627a2816b9ff831201dd9864249d6ee8d190b9532357f1fc0f61ea7"
 dependencies = [
  "bitflags",
  "block",
- "core-foundation 0.9.3",
+ "core-foundation 0.9.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "core-graphics 0.21.0",
  "foreign-types",
  "libc",
@@ -201,7 +201,16 @@ version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "194a7a9e6de53fa55116934067c844d9d749312f75c6f6d0980e8c252f8c2146"
 dependencies = [
- "core-foundation-sys 0.8.4",
+ "core-foundation-sys 0.8.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc",
+]
+
+[[package]]
+name = "core-foundation"
+version = "0.9.3"
+source = "git+https://github.com/servo/core-foundation-rs#f7d16c9685d3ec523a4c74d27e701265b583c927"
+dependencies = [
+ "core-foundation-sys 0.8.4 (git+https://github.com/servo/core-foundation-rs)",
  "libc",
 ]
 
@@ -216,6 +225,11 @@ name = "core-foundation-sys"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e496a50fda8aacccc86d7529e2c1e0892dbd0f898a6b5645b5561b89c3210efa"
+
+[[package]]
+name = "core-foundation-sys"
+version = "0.8.4"
+source = "git+https://github.com/servo/core-foundation-rs#f7d16c9685d3ec523a4c74d27e701265b583c927"
 
 [[package]]
 name = "core-graphics"
@@ -236,7 +250,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "52a67c4378cf203eace8fb6567847eb641fd6ff933c1145a115c6ee820ebb978"
 dependencies = [
  "bitflags",
- "core-foundation 0.9.3",
+ "core-foundation 0.9.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "foreign-types",
+ "libc",
+]
+
+[[package]]
+name = "core-graphics"
+version = "0.22.3"
+source = "git+https://github.com/servo/core-foundation-rs#f7d16c9685d3ec523a4c74d27e701265b583c927"
+dependencies = [
+ "bitflags",
+ "core-foundation 0.9.3 (git+https://github.com/servo/core-foundation-rs)",
+ "core-graphics-types",
+ "foreign-types",
+ "libc",
+]
+
+[[package]]
+name = "core-graphics-types"
+version = "0.1.1"
+source = "git+https://github.com/servo/core-foundation-rs#f7d16c9685d3ec523a4c74d27e701265b583c927"
+dependencies = [
+ "bitflags",
+ "core-foundation 0.9.3 (git+https://github.com/servo/core-foundation-rs)",
  "foreign-types",
  "libc",
 ]
@@ -495,7 +532,7 @@ version = "1.4.0-prerelease-1"
 dependencies = [
  "anyhow",
  "clap",
- "core-graphics 0.19.2",
+ "core-graphics 0.22.3",
  "encode_unicode",
  "evdev",
  "inotify 0.10.0",

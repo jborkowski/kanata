@@ -1,7 +1,12 @@
 //! Contains the input/output code for keyboards on macOS.
 
+use core::ffi::c_void;
+use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
 use rdev::{simulate, EventType};
+use serde::de::IntoDeserializer;
 use std::io;
+
+use core_graphics::event::{CGEvent, CGEventTapLocation, CGEventTapProxy};
 
 use crate::custom_action::*;
 use crate::keys::*;
@@ -15,13 +20,25 @@ impl KbdOut {
     }
 
     pub fn write(&mut self, event_type: EventType) -> Result<(), io::Error> {
-        simulate(&event_type)
-            .map_err(|_err| {
-                io::Error::new(
-                    io::ErrorKind::InvalidData,
-                    "We could not send keyboard event",
-                )
-            })
+        log::info!("input ev: {:?}", event_type);
+        use std::{thread, time};
+        let event_source = CGEventSource::new(CGEventSourceStateID::HIDSystemState)
+            .ok()
+            .unwrap();
+
+        thread::sleep(time::Duration::from_millis(20));
+
+        unsafe {
+            let event = convert_native_with_source(&event_type, event_source)
+                .expect("Failed creating event");
+            // event.post(CGEventTapLocation::HID );
+
+            let state_ptr: *const c_void = std::mem::transmute(&self);
+
+            event.post_from_tap(state_ptr);
+
+            Ok(())
+        }
     }
 
     pub fn write_key(&mut self, key: OsCode, value: KeyValue) -> Result<(), io::Error> {
@@ -80,5 +97,30 @@ fn event_type_from_oscode(code: OsCode, value: KeyValue) -> EventType {
     match value {
         KeyValue::Release => EventType::KeyRelease(OsCode::as_key(code)),
         KeyValue::Press | KeyValue::Repeat => EventType::KeyPress(OsCode::as_key(code)),
+    }
+}
+
+fn clear(event_type: EventType) -> EventType {
+    match event_type {
+        EventType::KeyRelease(code) => EventType::KeyRelease(code),
+        EventType::KeyPress(code) => EventType::KeyRelease(code),
+        _ => todo!(),
+    }
+}
+
+unsafe fn convert_native_with_source(
+    event_type: &EventType,
+    source: CGEventSource,
+) -> Option<CGEvent> {
+    match event_type {
+        EventType::KeyPress(key) => {
+            let code = OsCode::from_key(*key)?.as_u16();
+            CGEvent::new_keyboard_event(source, code, true).ok()
+        }
+        EventType::KeyRelease(key) => {
+            let code = OsCode::from_key(*key)?.as_u16();
+            CGEvent::new_keyboard_event(source, code, false).ok()
+        }
+        _ => None,
     }
 }
