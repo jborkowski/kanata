@@ -39,6 +39,18 @@ impl KbdOut {
         self.write(event)
     }
 
+    pub fn write_code(&mut self, _code: u32, _value: KeyValue) -> Result<(), io::Error> {
+        todo!();
+    }
+
+    pub fn move_mouse(
+        &mut self,
+        _direction: MoveDirection,
+        _distance: u16,
+    ) -> Result<(), io::Error> {
+        todo!();
+    }
+
     pub fn press_key(&mut self, key: OsCode) -> Result<(), io::Error> {
         self.write_key(key, KeyValue::Press)
     }

@@ -235,6 +235,8 @@ const DEF_LOCAL_KEYS: &str = "deflocalkeys-win";
 const DEF_LOCAL_KEYS: &str = "deflocalkeys-wintercept";
 #[cfg(target_os = "linux")]
 const DEF_LOCAL_KEYS: &str = "deflocalkeys-linux";
+#[cfg(target_os = "macos")]
+const DEF_LOCAL_KEYS: &str = "deflocalkeys-macos";
 
 #[allow(clippy::type_complexity)] // return type is not pub
 fn parse_cfg_raw(

@@ -379,7 +379,7 @@ impl Kanata {
         self.layout.bm().event(kbrn_ev);
         Ok(())
     }
-n
+
     /// Advance keyberon layout state and send events based on changes to its state.
     fn handle_time_ticks(&mut self, tx: &Option<Sender<ServerMessage>>) -> Result<()> {
         let now = time::Instant::now();

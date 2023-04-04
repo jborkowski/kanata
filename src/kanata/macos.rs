@@ -1,23 +1,23 @@
 use anyhow::Result;
-use crossbeam_channel::Sender;
 use log::{debug, info};
 use parking_lot::Mutex;
 use rdev::{grab, Event};
-use std::{sync::Arc, thread};
+use std::sync::mpsc::Sender;
+use std::sync::Arc;
 
 use super::*;
 
-static PRESSED_KEYS: Lazy<Mutex<HashSet<OsCode>>> = Lazy::new(|| Mutex::new(HashSet::new()));
+static PRESSED_KEYS: Lazy<Mutex<HashSet<OsCode>>> = Lazy::new(|| Mutex::new(HashSet::default()));
 
 impl Kanata {
     /// Enter an infinite loop that listens for OS key events and sends them to the processing
     /// thread.
     pub fn event_loop(kanata: Arc<Mutex<Self>>, tx: Sender<KeyEvent>) -> Result<()> {
         info!("entering the event loop");
-        {
-            let mut mapped_keys = MAPPED_KEYS.lock();
-            *mapped_keys = kanata.lock().mapped_keys.clone();
-        }
+
+        let k = kanata.lock();
+
+        drop(k);
 
         let callback = move |event: Event| -> Option<Event> {
             match KeyEvent::try_from(event.clone()) {
@@ -30,7 +30,7 @@ impl Kanata {
 
                     // Unlike Linux, macOS does not use a separate value for repeat. However, our co
                     // needs to differentiate between initial press and repeat press.
-                    log::debug!("event loop: {:?}", key_event);
+                    debug!("event loop: {:?}", key_event);
                     match key_event.value {
                         KeyValue::Release => {
                             PRESSED_KEYS.lock().remove(&key_event.code);
